@@ -1,0 +1,50 @@
+# Avoid flicker
+double_buffer yes
+
+# Output settings
+own_window no
+out_to_x no
+out_to_console yes
+update_interval 1
+
+# Output
+TEXT
+  ${time %H:%M   %Y-%m-%d (%V)} | C: ${if_match ${cpu cpu0}<10} ${endif}${cpu cpu0}% ${loadavg 1} ${acpitemp}°C | M: ${if_match ${memperc}<10} ${endif}${memperc}% + ${swapperc}% | IP: ${if_up wlan0}${addr wlan0} (${wireless_essid wlan0} ${if_match ${wireless_link_qual_perc wlan0}<100} ${endif}${wireless_link_qual_perc wlan0}%)${else}${addr eth3}${endif} | ${if_existing .mail.lock}.${else} ${endif}${exec echo `cat /home/geir/.mail2 | grep P`}  ${exec echo `cat /home/geir/.mail2 | grep W`} ${if_existing .nomail} [NoMail] ${endif}${if_existing .nonet} [NoNet] ${endif}${if_existing .mail.fail} [NoLogin] ${endif}| V: ${texeci 3 /home/geir/bin/conky_vol.sh}${texeci 3 /home/geir/bin/conky_volM.sh} | ${battery_short BAT1}   
+#
+# Explanation:
+#
+# ${time %H:%M   %Y-%m-%d (%V)} | 
+# `-> Show time and date and week number and then a separation bar
+#
+# C: ${if_match ${cpu cpu0}<10} ${endif}${cpu cpu0}% ${loadavg 1} ${acpitemp}°C | 
+# `-> Show CPU load (pad to two digits), system load and CPU temperature
+# 
+# M: ${if_match ${memperc}<10} ${endif}${memperc}% + ${swapperc}% | 
+# `-> Memory usage (padded to two digits), Swap usage
+#
+# IP: ${if_up wlan0}${addr wlan0} (${wireless_essid wlan0} ${if_match ${wireless_link_qual_perc wlan0}<100} ${endif}${wireless_link_qual_perc wlan0}%)${else}${addr eth3}${endif} | 
+# `-> Show IP address, wifi essid and strength (if wifi) 
+#
+# ${if_existing .mail.lock}.${else} ${endif}
+# `-> Show a dot if the script mail_fetch.rb is running, a space if not
+#
+# ${exec echo `cat /home/geir/.mail2 | grep G`}  ${exec echo `cat /home/geir/.mail2 | grep Å`} 
+# `-> Content of local imap Maildir boxes that are watched by mail_fetch
+#
+# ${if_existing .nomail} [NoMail] ${endif}
+# `-> Show " [NoMail] " if the NoMail directive is set via mail_fetch
+#
+# ${if_existing .nonet} [NoNet] ${endif}
+# `-> Show " [NoNet] " if mail_fetch cannot get Net access
+#
+# ${if_existing .mail.fail} [NoLogin] ${endif}| 
+# `-> Show " [NoLogin] " if mail_fetch fails to login to local or remote server
+#
+# V: ${texeci 3 /home/geir/bin/conky_vol.sh}
+# `-> Show volume level
+#
+# ${texeci 3 /home/geir/bin/conky_volM.sh} | 
+# `-> Show "[Off] (from aumixer) if volume is off
+#
+# ${battery_short BAT1}   
+#  `-> Battery percentage and three spaces to pad the output from the right edge

@@ -1,0 +1,9 @@
+# Password file for mail_fetch
+
+# Password to localhost
+$PWL = "passwordtolocalimap"
+
+# Passwords to remote servers in an array; [ "pw1", "pw2", "pw3" ]
+$PW  = [ "passwordtoserver0", "passwordtoserver1", "passwordtoserver2" ]
+
+# vim: filetype=ruby:
