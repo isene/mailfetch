@@ -6,45 +6,84 @@ own_window no
 out_to_x no
 out_to_console yes
 update_interval 1
+update_interval_on_battery 2
 
-# Output
+# This is the number of times Conky will update before quitting.
+# Set to zero to run forever.
+total_run_times 0
+
+# Shortens units to a single character (kiB->k, GiB->G, etc.). Default is off.
+short_units yes
+
+# How strict should if_up be when testing an interface for being up?
+# The value is one of up, link or address, to check for the interface
+# being solely up, being up and having link or being up, having link
+# and an assigned IP address. 
+if_up_strictness address
+
+# Add spaces to keep things from moving about?  This only affects certain objects.
+# use_spacer should have an argument of left, right, or none
+#use_spacer left
+
+# Force UTF8? note that UTF8 support required XFT
+override_utf8_locale no
+
+# number of cpu samples to average
+# set to 1 to disable averaging
+cpu_avg_samples 2
+
+# https://bbs.archlinux.org/viewtopic.php?id=165368
+times_in_seconds true
+
+# Stuff after 'TEXT' will be formatted on screen
 TEXT
-  ${time %H:%M   %Y-%m-%d (%V)} | C: ${if_match ${cpu cpu0}<10} ${endif}${cpu cpu0}% ${loadavg 1} ${acpitemp}°C | M: ${if_match ${memperc}<10} ${endif}${memperc}% + ${swapperc}% | IP: ${if_up wlan0}${addr wlan0} (${wireless_essid wlan0} ${if_match ${wireless_link_qual_perc wlan0}<100} ${endif}${wireless_link_qual_perc wlan0}%)${else}${addr eth3}${endif} | ${if_existing .mail.lock}.${else} ${endif}${exec echo `cat /home/geir/.mail2 | grep P`}  ${exec echo `cat /home/geir/.mail2 | grep W`} ${if_existing .nomail} [NoMail] ${endif}${if_existing .nonet} [NoNet] ${endif}${if_existing .mail.fail} [NoLogin] ${endif}| V: ${texeci 3 /home/geir/bin/conky_vol.sh}${texeci 3 /home/geir/bin/conky_volM.sh} | ${battery_short BAT1}   
-#
+
+# JSON for i3bar
+[
+{ "full_text" : " ${time %H:%M  %Y-%m-%d (%V.%u)} " , "color" : "\#ffffff" },
+{ "full_text" : " ${execi 1800 /home/geir/bin/weather.sh oslo | cut -c1-15} ${execi 1800 gcal -c | awk '/Moon/, /$/' | sed -e 's/^.*: //'} " , "color" : "\#dddddd" },
+{ "full_text" : " C: ${if_match ${cpu cpu0}<10} ${endif}${cpu cpu0}% ${loadavg 1} ${texeci 4 /home/geir/bin/cputemp.sh} " , "color" : ${if_match ${acpitemp}>80}"\#ff0000"${else}"\#aaaaaa"${endif} },
+{ "full_text" : " M: ${if_match ${memperc}<10} ${endif}${memperc}% ${swapperc}%  D: ${fs_free_perc /}% " , "color" : "\#aaaaaa" },
+{ "full_text" : " IP: ${if_up wlp2s0}${addr wlp2s0} (${texeci 3 /home/geir/bin/essid.sh}${if_match ${wireless_link_qual_perc wlp2s0}<100} ${endif}${wireless_link_qual_perc wlp2s0}%) <${texeci 3 if ping -c 1 -W 1 www.vg.no >/dev/null; then echo "O"; else echo "X"; fi;}> " , "color" : "\#aaaaaa" },
+{ "full_text" : " ${if_existing .mail.lock}.${else} ${endif}${exec echo `cat /home/geir/.mail2 | grep G`}  ${exec echo `cat /home/geir/.mail2 | grep A`}${if_existing .nomail} [-]${endif}${if_existing .nonet} [NN]${endif}${if_existing .mail.fail} [NL]${endif} " , "color" : "\#dddddd" },
+{ "full_text" : " i: ${texeci 10 sqlite3 -csv ~/.newsbeuter/cache.db "SELECT url FROM rss_item WHERE unread = 1;" | grep isene.me | grep comment | wc -l} " , "color" : "\#dddddd" },
+{ "full_text" : " V: ${texeci 3 /home/geir/bin/conky_vol.sh}${texeci 3 /home/geir/bin/conky_volM.sh} " , "color" : "\#dddddd" },
+{ "full_text" : " L: ${texeci 10 light -G | awk '{print int($1+0.5)}'} " , "color" : "\#dddddd" },
+{ "full_text" : " ${battery_short BAT0} (${execi 10 /home/geir/bin/battery_left.sh})${if_match ${battery_percent BAT0}<6}  ${blink XXXXX} ${endif} " , "color" : ${if_match ${battery_percent BAT0}<5}"\#ff0000"${else}"\#dddddd"${endif} }
+],
+
 # Explanation:
 #
-# ${time %H:%M   %Y-%m-%d (%V)} | 
-# `-> Show time and date and week number and then a separation bar
+# ${time %H:%M  %Y-%m-%d (%V.%u)} " , "color" : "\#ffffff" },
+# `-> Show time and date, week number and day number in the week
 #
-# C: ${if_match ${cpu cpu0}<10} ${endif}${cpu cpu0}% ${loadavg 1} ${acpitemp}°C | 
-# `-> Show CPU load (pad to two digits), system load and CPU temperature
+# ${execi 1800 /home/geir/bin/weather1no.rb} ${execi 1800 gcal -c | awk '/Moon/, /$/' | sed -e 's/^.*: //'} " , "color" : "\#dddddd" },
+# `-> Show the Moon phase (config in .gcalrc), "-" indicates a waning moon while "+" indicates a vexing moon.
+#
+# C: ${if_match ${cpu cpu0}<10} ${endif}${cpu cpu0}% ${loadavg 1} ${acpitemp}° " , "color" : ${if_match ${acpitemp}>80}"\#ff0000"${else}"\#aaaaaa"${endif} },
+# `-> Show CPU load (pad to two digits), system load and CPU temperature (color red if above 80 deg celsius)
 # 
-# M: ${if_match ${memperc}<10} ${endif}${memperc}% + ${swapperc}% | 
-# `-> Memory usage (padded to two digits), Swap usage
+# M: ${if_match ${memperc}<10} ${endif}${memperc}% ${swapperc}%  D: ${fs_free_perc /}% " , "color" : "\#aaaaaa" },
+# `-> Memory usage (padded to two digits), Swap usage, Disk usage
 #
-# IP: ${if_up wlan0}${addr wlan0} (${wireless_essid wlan0} ${if_match ${wireless_link_qual_perc wlan0}<100} ${endif}${wireless_link_qual_perc wlan0}%)${else}${addr eth3}${endif} | 
-# `-> Show IP address, wifi essid and strength (if wifi) 
+# IP: ${if_up wlan0}${addr wlan0} (${wireless_essid wlan0}${if_match ${wireless_link_qual_perc wlan0}<100} ${endif}${wireless_link_qual_perc wlan0}%) <${texeci 3 if ping -c 1 -W 1 www.vg.no >/dev/null; then echo "O"; else echo "X"; fi;}> " , "color" : "\#aaaaaa" },
+# `-> Show IP address, wifi essid and strength (if wifi). Print "<O>" if the address can be reached (www.vg.no), and "<X>" if not
 #
-# ${if_existing .mail.lock}.${else} ${endif}
+# ${if_existing .mail.lock}.${else} ${endif}${exec echo `cat /home/geir/.mail2 | grep G`}  ${exec echo `cat /home/geir/.mail2 | grep A`}${if_existing .nomail} [NoMail]${endif}${if_existing .nonet} [NN]${endif}${if_existing .mail.fail} [NL]${endif} " , "color" : "\#dddddd" },
 # `-> Show a dot if the script mail_fetch.rb is running, a space if not
-#
-# ${exec echo `cat /home/geir/.mail2 | grep G`}  ${exec echo `cat /home/geir/.mail2 | grep Å`} 
 # `-> Content of local imap Maildir boxes that are watched by mail_fetch
-#
-# ${if_existing .nomail} [NoMail] ${endif}
 # `-> Show " [NoMail] " if the NoMail directive is set via mail_fetch
+# `-> Show " [NN] " if mail_fetch cannot get Net access
+# `-> Show " [NL] " if mail_fetch fails to login to local or remote server
 #
-# ${if_existing .nonet} [NoNet] ${endif}
-# `-> Show " [NoNet] " if mail_fetch cannot get Net access
-#
-# ${if_existing .mail.fail} [NoLogin] ${endif}| 
-# `-> Show " [NoLogin] " if mail_fetch fails to login to local or remote server
-#
-# V: ${texeci 3 /home/geir/bin/conky_vol.sh}
+# V: ${texeci 3 /home/geir/bin/conky_vol.sh}${texeci 3 /home/geir/bin/conky_volM.sh} " , "color" : "\#dddddd" },
 # `-> Show volume level
-#
-# ${texeci 3 /home/geir/bin/conky_volM.sh} | 
 # `-> Show "[Off] (from aumixer) if volume is off
 #
-# ${battery_short BAT1}   
+# L: ${texeci 10 xbacklight -get | awk '{print int($1)}'} " , "color" : "\#dddddd" },
+# `-> Show LCD brightness level
+#
+# ${battery_short BAT1}${if_match ${battery_percent BAT1}<6}  ${blink XXXXX} ${endif}${if_match ${battery_percent BAT1}<4}${execi 60 i3lock -c 000000 && sudo pm-suspend}${endif} " , "color" : ${if_match ${battery_percent BAT1}<5}"\#ff0000"${else}"\#dddddd"${endif} },
 #  `-> Battery percentage and three spaces to pad the output from the right edge
+#  `-> Write out "XXXXX" if battery is below 6%
+#  `-> Suspend if battery is below 4%

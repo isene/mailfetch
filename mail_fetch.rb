@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 #
-# Copyright 2012, Geir Isene. Released under the GPL v. 3
-# Version 1.4 (2012-10-24)
+# Copyright 2012 - 2017, Geir Isene. Released under the GPL v. 3
+# Version 1.5.3 (2017-05-12)
 # http://isene.com
 
 #  Load modules {{{1
@@ -61,6 +61,8 @@ puts <<HELPTEXT
     -f
       Forces execution of mail_fetch even if "NoMail" is set
 
+    -d
+      Deletes the lock file in case the program hangs during suspend or otherwise
 
   COPYRIGHT:
       
@@ -73,6 +75,16 @@ end
 if ARGV[0] == "-h"
     help
     exit
+end
+
+# Delete lock-file with -d option {{{1
+if ARGV[0] == "-d"
+    begin
+        FileUtils.rm(".mail.lock")
+	exit
+    rescue
+	exit
+    end
 end
 
 # Exit if lock-file detected {{{1
@@ -97,7 +109,7 @@ if ARGV[0] == "-n"
     end
 end
 
-# Exit if file if ".nomail" exists" {{{1
+# Exit if file ".nomail" exists" {{{1
 #  ".nomail" makes it possible for Conky to notify that no mail will be fetched
 #  You can override the NoMail directive by using the argument "-f" (force)
 if File.exists?(".nomail") and ARGV[0] != "-f"
@@ -107,6 +119,24 @@ if File.exists?(".nomail") and ARGV[0] != "-f"
     exit
 end
 
+# Exit if network is unavailable {{{1
+# Create file ".nonet" to let Conky pick up if the Net is down
+require 'open-uri'
+begin
+    open("http://www.google.com/")
+rescue
+    FileUtils.touch(".nonet")
+    puts "Network unreachable."
+    # Unlock before exit
+    FileUtils.rm(".mail.lock")
+    exit
+end
+
+begin
+    FileUtils.rm(".nonet")
+rescue
+end
+
 # Initialize {{{1
 
 #  Declare the variable $Mailserver as an array
@@ -114,7 +144,7 @@ $Mailserver = Array.new
 
 #  Mail configuration for localhost and remote servers reside in ~/.mail.conf
 #  Passwords resides in ~/.mail.pw
-load	'~/.mail.pw'
+load	'/home/.safe/mail.pw'
 load    '~/.mail.conf'
 
 #  Declare the value that holds the number of mails filtered
@@ -154,16 +184,11 @@ def writefile()
 	    f.write( a[0] + $imap_to.status("INBOX." + a[1], "UNSEEN")["UNSEEN"].to_s + "\n" )
 	end
     end
-    puts "Written to #{$Mailfile1}"
+    puts "Written: #{$Mailfile1}"
     # Copy file to another file to ensure no blinking in Conky
     # Read the file from Conky to display new email in each folder
     FileUtils.cp($Mailfile1, $Mailfile2)
-    puts "Copied to #{$Mailfile2}"
-    # Remove the possibly created "dead.letter" file
-    begin
-	FileUtils.rm($Deadfile)
-    rescue
-    end
+    puts "Copied:  #{$Mailfile2}"
 end
 
 # Log into the target (local) IMAP server {{{1
@@ -191,29 +216,11 @@ rescue
     exit
 end
 
-# Exit if network is unavailable {{{1
-# Create file ".nonet" to let Conky pick up if the Net is down
-require 'open-uri'
-begin
-    open("http://www.google.com/")
-rescue
-    writefile
-    FileUtils.touch(".nonet")
-    puts "Network unreachable."
-    # Unlock before exit
-    FileUtils.rm(".mail.lock")
-    exit
-end
-
-begin
-    FileUtils.rm(".nonet")
-rescue
-end
-
 # Log into each "from"-server, fetch, filter and log out from each {{{1
 $Mailserver.each do |ms|
     begin
 	# Login
+	puts "Trying:  Login to #{ms[0][1]}"
 	$imap_from = Net::IMAP.new(ms[0][0], port="993", usessl="true")
 	$imap_from.login(ms[0][1], ms[0][2])
 	$imap_from.select("INBOX")
@@ -242,7 +249,16 @@ begin
     $imap_to.disconnect
 rescue
 end
+
+# Run "notmuch new" for indexing new mails 
+# and remove the possibly created "dead.letter" file
+system('notmuch new') if $count > 0
+begin
+    FileUtils.rm($Deadfile)
+rescue
+end
 puts "#{$count} mails filtered"
+
 # Finally unlock
 FileUtils.rm(".mail.lock")
 
