@@ -123,7 +123,7 @@ end
 # Create file ".nonet" to let Conky pick up if the Net is down
 require 'open-uri'
 begin
-    open("http://www.google.com/")
+    open("http://www.google.com/", :open_timeout=>5)
 rescue
     FileUtils.touch(".nonet")
     puts "Network unreachable."
@@ -260,7 +260,10 @@ end
 puts "#{$count} mails filtered"
 
 # Finally unlock
-FileUtils.rm(".mail.lock")
+begin
+	FileUtils.rm(".mail.lock")
+rescue
+end
 
 # Modeline {{{1
 # vim: set foldmethod=marker:
