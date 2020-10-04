@@ -123,7 +123,7 @@ end
 # Create file ".nonet" to let Conky pick up if the Net is down
 require 'open-uri'
 begin
-    open("http://www.google.com/", :open_timeout=>5)
+  URI.open("http://www.google.com/", :open_timeout=>5)
 rescue
     FileUtils.touch(".nonet")
     puts "Network unreachable."
