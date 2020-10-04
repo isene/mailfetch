@@ -2,20 +2,20 @@
 Collect mail from various accounts, filter and store locally
 
 
-WHY?
+## WHY?
 
 Beacuse you have several imap mail accounts and would like to retreive mail to
 local folders so you can read and handle email faster and more convenient.
 
 
-WHAT?
+## WHAT?
 
 mailfetch is a system for retreiving mail from different remote imap accounts,
 filtering the mail according to the rules you set up and storing the mail into
 local imap folders.
 
 
-HOW?
+## HOW?
 
 Simply put the file "mail_fetch.rb" into a folder in your defined PATH. Rename
 the file "mail.conf" to ".mail.conf" and "mail.pw" to ".mail.pw". Put the files
@@ -37,18 +37,16 @@ mail_fetch running, network being unreachable, inability to login to local imap
 or remote servers and new mail count for the mail folders you decide to keep a 
 tab on.
 
-I have included the various scripts I use in my conky bar such as getting
-the CPU temperature, essid of the wifi connection, battery time left,
-weather information and volume controls.
+For more conky magic, check [my conky bar setup](https://github.com/isene/conky).
 
 
-WHEN?
+## WHEN?
 
 Add an entry as a cron job using "crontab -e" that lookes like this:
 
 * * * * * /home/yourusername/bin/mail_fetch.rb >/dev/null 2>&1
 
 
-WHO?
+## WHO?
 
 Copyright 2017, Geir Isene. Released under the GPL v. 3, Version 1.1 (2012-09-30), http://isene.com
