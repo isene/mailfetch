@@ -79,18 +79,18 @@ end
 
 # Delete lock-file with -d option {{{1
 if ARGV[0] == "-d"
-    begin
-        FileUtils.rm(".mail.lock")
-	exit
-    rescue
-	exit
-    end
+  begin
+    FileUtils.rm(".mail.lock")
+	  exit
+  rescue
+	  exit
+  end
 end
 
 # Exit if lock-file detected {{{1
-if File.exists?(".mail.lock")
-    puts "Busy!"
-    exit
+if File.exist?(".mail.lock")
+  puts "Busy!"
+  exit
 end
 
 # Create lock-file {{{1 
@@ -100,23 +100,23 @@ FileUtils.touch(".mail.lock")
 
 # Toggle the NoMail directive {{{1
 if ARGV[0] == "-n"
-    if File.exists?(".nomail")
-	FileUtils.rm(".nomail")
-	puts "mail_fetch enabled"
-    else
-	FileUtils.touch(".nomail")
-	puts "mail_fetch disabled"
-    end
+  if File.exist?(".nomail")
+	  FileUtils.rm(".nomail")
+	  puts "mail_fetch enabled"
+  else
+	  FileUtils.touch(".nomail")
+	  puts "mail_fetch disabled"
+  end
 end
 
 # Exit if file ".nomail" exists" {{{1
 #  ".nomail" makes it possible for Conky to notify that no mail will be fetched
 #  You can override the NoMail directive by using the argument "-f" (force)
-if File.exists?(".nomail") and ARGV[0] != "-f"
-    puts "NoMail"
-    # Unlock before exit
-    FileUtils.rm(".mail.lock")
-    exit
+if File.exist?(".nomail") and ARGV[0] != "-f"
+  puts "NoMail"
+  # Unlock before exit
+  FileUtils.rm(".mail.lock")
+  exit
 end
 
 # Exit if network is unavailable {{{1
@@ -125,15 +125,15 @@ require 'open-uri'
 begin
   URI.open("http://www.google.com/", :open_timeout=>5)
 rescue
-    FileUtils.touch(".nonet")
-    puts "Network unreachable."
-    # Unlock before exit
-    FileUtils.rm(".mail.lock")
-    exit
+  FileUtils.touch(".nonet")
+  puts "Network unreachable."
+  # Unlock before exit
+  FileUtils.rm(".mail.lock")
+  exit
 end
 
 begin
-    FileUtils.rm(".nonet")
+  FileUtils.rm(".nonet")
 rescue
 end
 
@@ -154,35 +154,35 @@ puts "initialized"
 # Define functions {{{1
 #  Main Fetch & Filter function {{{2
 def matching (match, match_in, to_box, del)
-    res = []
-    message = ""
-    to_box = "INBOX." + to_box
-    if match_in =~ /s/ then res = res + $imap_from.search(["UNSEEN", "SUBJECT", match]) end
-    if match_in =~ /b/ then res = res + $imap_from.search(["UNSEEN", "BODY", match]) end
-    if match_in =~ /f/ then res = res + $imap_from.search(["UNSEEN", "FROM", match]) end
-    if match_in =~ /t/ then res = res + $imap_from.search(["UNSEEN", "TO", match]) end
-    if match_in =~ /c/ then res = res + $imap_from.search(["UNSEEN", "CC", match]) end
-    if match_in =~ /h/ then res = res + $imap_from.search(["UNSEEN", "HEADER", match]) end
-    if match_in =~ /a/ then res = res + $imap_from.search(["UNSEEN", "TEXT", match]) end
-    res.uniq!
-    res.each do |message_id|
-      message = $imap_from.fetch(message_id,'RFC822')[0].attr['RFC822']
-      $imap_to.append(to_box, message)
-      if del == 1
-	  $imap_from.store(message_id, "+FLAGS", [:Deleted])
-      else 
-	  $imap_from.store(message_id, "+FLAGS", [:Seen])
-      end
-      $count = $count + 1
+  res = []
+  message = ""
+  to_box = "INBOX." + to_box
+  if match_in =~ /s/ then res = res + $imap_from.search(["UNSEEN", "SUBJECT", match]) end
+  if match_in =~ /b/ then res = res + $imap_from.search(["UNSEEN", "BODY", match]) end
+  if match_in =~ /f/ then res = res + $imap_from.search(["UNSEEN", "FROM", match]) end
+  if match_in =~ /t/ then res = res + $imap_from.search(["UNSEEN", "TO", match]) end
+  if match_in =~ /c/ then res = res + $imap_from.search(["UNSEEN", "CC", match]) end
+  if match_in =~ /h/ then res = res + $imap_from.search(["UNSEEN", "HEADER", match]) end
+  if match_in =~ /a/ then res = res + $imap_from.search(["UNSEEN", "TEXT", match]) end
+  res.uniq!
+  res.each do |message_id|
+    message = $imap_from.fetch(message_id,'RFC822')[0].attr['RFC822']
+    $imap_to.append(to_box, message)
+    if del == 1
+  $imap_from.store(message_id, "+FLAGS", [:Deleted])
+    else 
+  $imap_from.store(message_id, "+FLAGS", [:Seen])
     end
+    $count = $count + 1
+  end
 end
 
 #  Check for new mails in folders and write result to file {{{2
 def writefile()
     open($Mailfile1, 'w') do |f|
-	$Mailboxes.each do |a|
-	    f.write( a[0] + $imap_to.status("INBOX." + a[1], "UNSEEN")["UNSEEN"].to_s + "\n" )
-	end
+	    $Mailboxes.each do |a|
+	      f.write( a[0] + $imap_to.status("INBOX." + a[1], "UNSEEN")["UNSEEN"].to_s + "\n" )
+	    end
     end
     puts "Written: #{$Mailfile1}"
     # Copy file to another file to ensure no blinking in Conky
@@ -193,51 +193,51 @@ end
 
 # Log into the target (local) IMAP server {{{1
 begin
-    $imap_to = Net::IMAP.new($Localserver[0], port="143")
-    $imap_to.login($Localserver[1], $Localserver[2])
-    $imap_to.select("INBOX")
-    begin
-	FileUtils.rm(".mail.fail")
-    rescue
-    end
-    puts "Success: Login to local IMAP server"
+  $imap_to = Net::IMAP.new($Localserver[0], port="143")
+  $imap_to.login($Localserver[1], $Localserver[2])
+  $imap_to.select("INBOX")
+  begin
+    FileUtils.rm("~/.mail.fail")
+  rescue
+  end
+  puts "Success: Login to local IMAP server"
 rescue
-    open($Mailfile1, 'w') do |f|
-	$Mailboxes.each do |a|
-	    f.write( a[0] + "X\n" )
-	end
+  open($Mailfile1, 'w') do |f|
+    $Mailboxes.each do |a|
+      f.write( a[0] + "X\n" )
     end
-    FileUtils.cp($Mailfile1,$Mailfile2)
-    puts "Login to local IMAP server failed"
-    # Create file to flag a failed login
-    FileUtils.touch(".mail.fail")
-    # Unlock before exit
-    FileUtils.rm(".mail.lock")
-    exit
+  end
+  FileUtils.cp($Mailfile1,$Mailfile2)
+  puts "Login to local IMAP server failed"
+  # Create file to flag a failed login
+  FileUtils.touch(".mail.fail")
+  # Unlock before exit
+  FileUtils.rm(".mail.lock")
+  exit
 end
 
 # Log into each "from"-server, fetch, filter and log out from each {{{1
 $Mailserver.each do |ms|
-    begin
-	# Login
-	puts "Trying:  Login to #{ms[0][1]}"
-	$imap_from = Net::IMAP.new(ms[0][0], port="993", usessl="true")
-	$imap_from.login(ms[0][1], ms[0][2])
-	$imap_from.select("INBOX")
-	puts "Success: Login to #{ms[0][1]}"
-        # Filter mails
-	ms[1].each do |m|
-	    matching( m[0], m[1], m[2], m[3] )
-	end
-	# Expunge mails that are set to be deleted and then disconnect
-	$imap_from.expunge
-	$imap_from.disconnect
-	puts "Success: Filter and Disconnect from #{ms[0][1]}"
-    rescue
-	puts "Failed: Login to #{ms[0][1]}"
-	# Create file to flag a failed login
-	FileUtils.touch(".mail.fail")
+  begin
+    # Login
+    puts "Trying:  Login to #{ms[0][1]}"
+    $imap_from = Net::IMAP.new(ms[0][0], port="993", usessl="true")
+    $imap_from.login(ms[0][1], ms[0][2])
+    $imap_from.select("INBOX")
+    puts "Success: Login to #{ms[0][1]}"
+    # Filter mails
+    ms[1].each do |m|
+      matching( m[0], m[1], m[2], m[3] )
     end
+    # Expunge mails that are set to be deleted and then disconnect
+    $imap_from.expunge
+    $imap_from.disconnect
+    puts "Success: Filter and Disconnect from #{ms[0][1]}"
+  rescue
+    puts "Failed: Login to #{ms[0][1]}"
+    # Create file to flag a failed login
+    FileUtils.touch(".mail.fail")
+  end
 end
 
 # Write mailbox status to file {{{1
@@ -246,7 +246,7 @@ writefile()
 
 # Disconnect from target server & display number of mails filtered, delete, unlock {{{1
 begin
-    $imap_to.disconnect
+  $imap_to.disconnect
 rescue
 end
 
@@ -254,7 +254,7 @@ end
 # and remove the possibly created "dead.letter" file
 system('notmuch new') if $count > 0
 begin
-    FileUtils.rm($Deadfile)
+  FileUtils.rm($Deadfile)
 rescue
 end
 puts "#{$count} mails filtered"
