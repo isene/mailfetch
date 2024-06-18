@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
 #
-# Copyright 2012 - 2017, Geir Isene. Released under the GPL v. 3
-# Version 1.5.3 (2017-05-12)
+# Copyright 2012 - 2024, Geir Isene. Released under the GPL v. 3
+# Version 1.6 (2024-06-18)
 # http://isene.com
 
 #  Load modules {{{1
@@ -197,7 +197,7 @@ begin
   $imap_to.login($Localserver[1], $Localserver[2])
   $imap_to.select("INBOX")
   begin
-    FileUtils.rm("~/.mail.fail")
+    FileUtils.rm(".mail.fail")
   rescue
   end
   puts "Success: Login to local IMAP server"
