@@ -78,7 +78,7 @@ if ARGV[0] == "-h"
 end
 
 # Delete lock-file with -d option {{{1
-if ARGV[0] == "-d"
+if ARGV[0] == "-d" or ARGV[0] == "-f"
   begin
     FileUtils.rm(".mail.lock")
 	  exit
