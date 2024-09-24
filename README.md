@@ -1,5 +1,8 @@
 # mailfetch
-Collect mail from various accounts, filter and store locally
+Collect mail from various accounts, filter and store locally.
+
+To collect mail via Oauth2 authenticated accounts, use gmailfetch:
+https://github.com/isene/gmailfetch
 
 
 ## WHY?
