@@ -46,9 +46,9 @@ For more conky magic, check [my conky bar setup](https://github.com/isene/conky)
 ## WHEN?
 
 Add an entry as a cron job using "crontab -e" that lookes like this:
-
+```
 * * * * * /home/yourusername/bin/mail_fetch.rb >/dev/null 2>&1
-
+```
 
 ## WHO?
 
