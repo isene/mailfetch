@@ -266,4 +266,4 @@ rescue
 end
 
 # Modeline {{{1
-# vim: set foldmethod=marker:
+# vim: set foldmethod=marker fcs=fold\:\ :
