@@ -5,6 +5,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/isene/mailfetch.svg)](https://github.com/isene/mailfetch/stargazers)
 [![Stay Amazing](https://img.shields.io/badge/Stay-Amazing-blue.svg)](https://isene.org)
 
+<img src="mailfetch_logo.svg" width="150" height="150">
+
 Collect mail from various accounts, filter and store locally.
 
 To collect mail via Oauth2 authenticated accounts, use gmailfetch:
