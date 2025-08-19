@@ -6,6 +6,7 @@
 [![Stay Amazing](https://img.shields.io/badge/Stay-Amazing-blue.svg)](https://isene.org)
 
 <img src="img/mailfetch_logo.svg" align="left" width="150" height="150"> Collect mail from various accounts, filter and store locally.
+<br clear="left"/>
 
 To collect mail via Oauth2 authenticated accounts, use gmailfetch:
 https://github.com/isene/gmailfetch
