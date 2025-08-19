@@ -1,5 +1,6 @@
 # mailfetch
 
+[![Ruby](https://img.shields.io/badge/Ruby-CC342D?style=flat&logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
 [![License](https://img.shields.io/badge/License-Public%20Domain-brightgreen.svg)](https://unlicense.org/)
 [![GitHub stars](https://img.shields.io/github/stars/isene/mailfetch.svg)](https://github.com/isene/mailfetch/stargazers)
 [![Stay Amazing](https://img.shields.io/badge/Stay-Amazing-blue.svg)](https://isene.org)
